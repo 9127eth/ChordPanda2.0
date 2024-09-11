@@ -6,6 +6,7 @@ const AuthForm: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,11 +22,19 @@ const AuthForm: React.FC = () => {
   };
 
   const handleGoogleAuth = async () => {
+    setIsLoading(true);
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error with Google auth:', error);
+      if (error instanceof Error && 'code' in error && error.code === 'auth/network-request-failed') {
+        alert('There was a temporary issue with Google authentication. Please try again in a few seconds.');
+      } else {
+        alert('An error occurred during Google authentication. Please try again later.');
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -55,8 +64,9 @@ const AuthForm: React.FC = () => {
       <button
         onClick={handleGoogleAuth}
         className="w-full p-2 mt-4 bg-red-500 text-white rounded"
+        disabled={isLoading}
       >
-        Sign in with Google
+        {isLoading ? 'Signing in...' : 'Sign in with Google'}
       </button>
       <p className="mt-4 text-center">
         {isSignUp ? 'Already have an account?' : "Don't have an account?"}
