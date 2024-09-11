@@ -1,0 +1,715 @@
+You are an expert in TypeScript, Node.js, Next.js App Router, React, Firebase, and Tailwind.
+
+This is my first coding project so you will need to be specific on what code needs to go where and change the code for me.
+
+Code Style and Structure
+
+	•	Write concise, technically sound TypeScript code, with accurate examples where necessary.
+	•	Follow functional and declarative programming patterns; avoid classes and imperative code unless absolutely necessary.
+	•	Prefer modularization and reuse of code over duplication, making the app more maintainable.
+	•	Use descriptive variable names with auxiliary verbs like isLoading, hasError, shouldFetch, etc.
+	•	Structure files in an intuitive way:
+	•	Main component
+	•	Subcomponents
+	•	Helper functions or utilities
+	•	Static content (e.g., images, constants)
+	•	Type definitions (interfaces, types).
+
+Naming Conventions
+
+	•	Use lowercase with dashes for directory names (e.g., components/auth-wizard).
+	•	Prefer named exports over default exports for easier refactoring and tree shaking, making components easier to track across the project.
+
+TypeScript Usage
+
+	•	Write TypeScript for all code, leveraging type safety to catch potential errors early.
+	•	Prefer interfaces over types unless union types or more complex compositions are needed (interfaces are better for object shapes and extending).
+	•	Avoid using enums, instead opt for maps or string literal types for better flexibility and performance.
+	•	Always use functional components, strongly typed with TypeScript interfaces for props.
+
+Syntax and Formatting
+
+	•	Use the function keyword for pure functions, particularly for utilities or helper functions.
+	•	Simplify conditionals: Avoid unnecessary curly braces where concise syntax (like inline ternaries or logical operators) can improve readability. However, ensure readability is never sacrificed for brevity.
+	•	Keep JSX declarative and expressive, favoring simplicity and clarity over cleverness.
+
+Performance Optimization
+
+	•	Optimize image handling:
+	•	Use WebP format for improved performance.
+	•	Always include size data (width and height) in image elements to prevent layout shifts (especially important for mobile performance).
+	•	Implement lazy loading for images and other heavy content, using either native lazy loading (loading="lazy") or React libraries such as react-lazyload or IntersectionObserver.
+Performance OptimizationImplement caching strategies for frequently accessed data
+Optimize database queries for faster retrieval
+Consider using a CDN for static assets
+
+Logging rules:
+Here is my rule of thumb: "Log what you'd need to debug the issue if you were woken up at 3 AM, but not more."
+Use best practices when making logs, high signal low noise, should provide value without being overly verbose.
+
+This guideline encourages thoughtful logging practices. 
+Log critical errors: Always log errors that could crash the application or severely impact functionality.
+Log unexpected behaviors: If something happens that shouldn't, it's worth logging.
+Avoid logging normal operations: Don't log routine, or expected behaviors.
+Use log levels: Implement DEBUG, INFO, WARN, ERROR levels to categorize logs.
+Be selective: Log the most relevant information that would help diagnose issues quickly.
+Consider the context: Include enough contextual data to understand the error's circumstances.
+Think about actionability: If you can't act on the information, it might not need to be logged.
+Review and refine: Periodically review logs to see if they're providing value or just noise.
+
+
+UI
+Must have a dark mode option. 
+Here are how I initially want things to look. 
+Page background color
+Colors:
+Page background: #FFF5E1
+Text Color - 1b1b1b
+Action Button: FFB300
+Card background: F5F5F5
+Options dropdown menu: F5F5F5
+Main card text: Black
+Alt card text: 333333
+Website Section: #E0E0E0
+Anytime we need a red: #DD1C1A
+Anytime we need a green: #BAD9B5
+
+There must be a way for users to delete their accounts
+There must be a forgot password function implemented. 
+Pop ups and confirmations should occur cleanly in the UI. 
+
+# AI Piano App: Complete Comprehensive Plan
+
+## Overview
+This app allows users to get inspiration for piano music creation through AI-generated "sound cards". Users can generate, explore, and favorite these cards, which visually show piano keys to play. The app includes both free and paid versions, with a focus on user experience and music theory learning.
+
+## Core Technologies
+- Frontend: next.js React and React Native
+- Backend: firebase
+- Authentication: firebase
+- Storage: Firebase backend/storage
+- Key Management: env variables for app keys and sercrets, Firebase for user ai keys
+- Payment Processing: Stripe
+- Deployment: GitHub and Vercel
+
+## App Requirements
+
+### 1. Core Functionality
+1.1 Sound Card Generation
+- Users can generate "sound cards" using AI
+- Cards visually show piano keys to play
+- Option for single key sounds or full chords (2-10 keys max)
+- AI uses OpenAI's GPT for generation (initially using ChatGPT API key)
+
+1.2 Explore Feed
+- Display popular cards (most liked)
+- Show recently created cards
+- Feature curated sound cards
+
+1.3 User Accounts
+- Login functionality
+- Ability to favorite sound cards
+- History of generated cards
+- Option to delete account
+- Forgot password function
+
+1.4 Card Management
+- Save generated cards
+- View saved cards
+- Delete saved cards (with confirmation)
+
+### 2. User Interface
+2.1 General UI
+- Dark mode option
+- Responsive design for various devices
+- Clean pop-ups and confirmations
+- Add option for users to leave parameters unspecified
+- Implement a "Surprise Me" or "AI Choose" button for each parameter
+
+2.2 Card Display
+- Visual representation of piano keys
+- Highlight keys to play
+- Display card metadata (music theory, chord type, etc.)
+
+2.3 Generation Interface
+- Form for setting card parameters
+- Option to lock specific parameters
+- Generate button
+
+### 3. Advanced Features
+3.1 Pro User Features
+- Ability to change generation parameters
+- Custom prompts for generation
+- Increased limits on card generation and saving
+
+3.2 Learn Section
+- Resources for piano basics and music theory
+
+3.3 Sharing
+- Share cards on social media
+- Unique URL for each card
+
+### 4. Technical Requirements
+4.1 Performance
+- Efficient AI interaction
+- Responsive UI
+
+4.2 Security
+- Secure key management
+- User data protection
+
+4.3 Scalability
+- Modular design for easy feature addition/removal
+
+## Detailed System Design
+
+### 1. Core Components
+
+1.1 `AIInteraction` Component
+- Handles interaction with OpenAI API
+- Exposes `generateCard` function for card generation
+- Sends requests to the backend API (`generate-card.js`)
+- Parses AI responses into structured data
+
+1.2 `SoundCardGenerator` Component
+- Manages UI for card generation
+- Includes form for card configuration (type, number of keys, etc.)
+- Uses `AIInteraction` component to generate cards based on user input
+- Displays generated cards with visual piano representation
+
+1.3 Backend API (`generate-card.js`)
+- Constructs prompts based on user input
+- it should be able to handle partially specified parameters, allowing the AI to fill in unspecified parameters
+- Implement logic to determine which parameters need AI generation 
+- Sends requests to OpenAI API or Claude API based on user settings
+- Processes and returns AI responses to the frontend
+
+1.4 `PromptManager` Component
+- Manages the main AI prompt template
+- Allows admin to update the core prompt
+- Combines core prompt with user-specific inputs
+- Handles custom user prompt additions
+
+1.5 `APIKeyManager` Component
+- Manages API key usage and limitations
+- Handles user-provided API keys
+- Switches between app's default key and user's key as needed
+
+### 2. Extended Components
+
+2.1 AuthenticationManager
+- Handles user registration, login, and logout
+- Manages sessions and authentication states
+- Differentiates between free and pro users
+
+2.2 UserProfileManager
+- Manages user profile information
+- Handles account deletion
+- Implements forgot password feature
+
+2.3 ExploreFeed Component
+- Displays popular, recent, and featured sound cards
+- Implements infinite scrolling or pagination
+- Allows filtering and sorting
+
+2.4 FavoritesManager
+- Enables favoriting/unfavoriting cards
+- Manages user's favorite cards list
+- Provides dedicated view for favorites
+
+2.5 CardHistoryManager
+- Tracks and displays user's generated card history
+- Allows revisiting and regenerating past cards
+
+2.6 LearnSection Component
+- Provides resources for piano basics and music theory
+- Organizes materials into categories or lessons
+
+2.7 SharingModule
+- Enables sharing on social media
+- Generates unique URLs for cards
+
+2.8 ErrorLoggingService
+- Implements robust error logging
+- Captures and reports frontend and backend errors
+- Implement checks for AI-generated parameters to ensure they're within acceptable ranges
+
+2.9 UserPreferencesManager
+- Manages user-level default soundcard configurations
+- Allows setting and updating preferred generation settings
+- Persists preferences across sessions
+
+2.10 `CardDisplay` Component
+- Renders the visual representation of the generated sound card
+- Displays the piano keys with appropriate highlighting
+- Shows card metadata and additional information
+
+2.11 `CardMetadata` Component
+- Displays detailed information about the generated card
+- Shows music theory explanation, chord type, scale type, etc.
+
+2.12 `UserPromptInput` Component
+- Allows users to input custom additions to the prompt
+- Validates and sanitizes user input
+
+2.13 `APIKeySettings` Component
+- Enables users to add and manage their own API keys
+- Provides interface for switching between app's key and user's key
+
+### 3. Card Generation and Display
+
+3.1 Card Configuration
+- Implemented within `SoundCardGenerator` component
+- Supports single key and chord card types
+- Configures key count, note count, and other parameters
+- Implements parameter locking
+- Utilizes user's default configurations when available
+- Incorporates user's custom prompt additions
+
+3.2 `VisualPianoGenerator` Utility
+- Creates HTML/SVG representation of piano keys
+- Highlights appropriate keys based on AI generation
+- Adapts display for single key and chord types
+
+3.3 Card Metadata Display
+- Implemented within `CardMetadata` component
+- Shows music theory explanations
+- Displays chord type, scale type, progression, and key
+- Provides detailed view for advanced users
+
+3.4 `DefaultConfigLoader` Utility
+- Loads user's default soundcard configurations
+- Prepopulates `SoundCardGenerator` form with preferred settings
+
+### 4. User Interface and Experience
+
+4.1 Dark Mode
+- Implements toggle for dark mode
+
+4.2 Responsive Design
+- Ensures usability on various device sizes
+
+4.3 Confirmation Dialogs
+- Implements pop-ups for important actions
+
+4.4 Loading States
+- Displays indicators during AI generation and async operations
+
+### 5. Pro vs Free User Features
+
+5.1 FeatureManager
+- Controls access to premium features
+- Implements feature flags for easy enabling/disabling
+
+5.2 Pro Features
+- Advanced parameter configuration
+- Increased generation and saving limits
+- Access to exclusive learn section content
+
+### 6. Data Management
+
+6.1 CardStorageService
+- Manages saving and retrieval of generated cards
+- Implements unique identifiers for each card
+
+6.2 UserDataManager
+- Handles user preferences and settings
+- Manages user-specific data (including default configurations)
+- Syncs preferences across devices
+
+### 7. Security and Performance
+
+7.1 SecurityManager
+- Implements secure handling of API keys
+- Manages user authentication tokens
+
+7.2 RateLimiter
+- Implements rate limiting for API requests
+- Manages user quotas for card generation
+
+### 8. Integration and Deployment
+
+8.1 CI/CD Pipeline
+- Sets up continuous integration and deployment (GitHub and Vercel)
+
+8.2 Firebase Integration
+- Implements firebase backend/storage solutions
+- Sets up firebase key management system
+
+8.3 Stripe Integration
+- Implements payment processing for pro subscriptions
+
+### 9. Analytics and Monitoring
+
+9.1 AnalyticsService
+- Tracks user engagement and app usage
+- Provides insights on popular cards and features
+
+9.2 PerformanceMonitor
+- Monitors app performance and response times
+- Alerts on issues or anomalies
+
+## Implementation Specifics
+
+### Core Interaction Flow
+
+1. User interacts with `SoundCardGenerator` component to configure card parameters.
+2. User clicks "Generate" button in `SoundCardGenerator`.
+3. `SoundCardGenerator` calls `generateCard` function provided by `AIInteraction`.
+4. `AIInteraction` sends a request to the backend API (`generate-card.js`), including:
+   - Card configuration
+   - User's custom prompt addition (if any)
+   - API key to use (app's or user's)
+5. `generate-card.js` constructs the full prompt using `PromptManager` and sends it to the OpenAI API using the appropriate key from `APIKeyManager`.
+6. OpenAI returns a response, which is sent back to the frontend.
+7. `AIInteraction` parses the AI's response into a structured format.
+8. Parsed card data is passed back to `SoundCardGenerator` via callback.
+9. `SoundCardGenerator` updates its state with the new card data.
+10. `CardDisplay` and `CardMetadata` components render the generated card.
+
+### Key Functions
+
+#### `generateCard` in `AIInteraction`
+
+```javascript
+const generateCard = async (config) => {
+  try {
+    const response = await fetch('/api/generate-card', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(config),
+    });
+    const data = await response.json();
+    
+    // Generate visual piano based on AI response
+    const visualPiano = VisualPianoGenerator.generate(data.keys, config.cardType);
+    
+    return { ...data, visualPiano };
+  } catch (error) {
+    console.error('Error generating card:', error);
+    throw error;
+  }
+};
+```
+
+#### `constructFullPrompt` in `PromptManager`
+
+```javascript
+function constructFullPrompt(corePrompt, userCustomPrompt, cardConfig) {
+  // Combine core prompt, user custom prompt, and card configuration
+  // Return the full prompt string
+}
+```
+
+#### `selectAPIKey` in `APIKeyManager`
+
+```javascript
+function selectAPIKey(userId) {
+  // Check if user has a valid custom API key
+  // Return user's key if available and valid, otherwise return app's default key
+}
+```
+
+### Backend API Example (`generate-card.js`)
+
+```javascript
+import OpenAI from 'openai';
+import { PromptManager } from './PromptManager';
+import { APIKeyManager } from './APIKeyManager';
+
+export default async function handler(req, res) {
+  try {
+    const { cardType, keyCount, noteCount, lockedParameters, userCustomPrompt, userId } = req.body;
+
+    const corePrompt = PromptManager.getCorePrompt();
+    const fullPrompt = PromptManager.constructFullPrompt(corePrompt, userCustomPrompt, {
+      cardType, keyCount, noteCount, lockedParameters
+    });
+
+    const apiKey = APIKeyManager.selectAPIKey(userId);
+    const openai = new OpenAI(apiKey);
+
+    const completion = await openai.createCompletion({
+      model: "text-davinci-002",
+      prompt: fullPrompt,
+      max_tokens: 150
+    });
+
+    const parsedResponse = parseAIResponse(completion.choices[0].text);
+
+    res.status(200).json(parsedResponse);
+  } catch (error) {
+    res.status(500).json({ error: 'Error generating card' });
+  }
+}
+```
+
+## Prompt Management
+
+### Core Prompt for Sound Card Generation
+You are an expert music theorist, music producer for all genres, and a piano instructor. Your task is to generate a "sound card" for a music app, primarily focusing on the piano. This sound card should provide a musical pattern that is both educational and inspirational for piano learners and musicians looking for creative inspiration.
+
+The user has provided some parameters, but others are unspecified. First, complete any missing parameters to create a cohesive musical concept. Then, generate the sound card based on the complete set of parameters. If there are no user-specified parameters, you have creative freedom with those parameters.
+
+Here are the User-specified parameters. After the parameters, I have added the rules of each parameter separated by a comma. You must keep the rules in mind to complete Step 3:
+
+- Card Type: {cardType or "unspecified"}, Options: [Single Keys / Chords]
+- Number of Keyboards: {numberOfKeyboards or "unspecified"}, [If Card type is Single Keys, this must only be "1", If Chords, value can be between "2", "3", or "4"]
+- Number of Keys to Play: {keysToPlay or "unspecified"}, [If Card type is Single Keys, value must be between 2 and 21. If the card type is Chords, the value must be between 2 and 10]
+- Number of Notes in the Card: {notesInCard or "unspecified"}, [min=2, max=12]
+- Difficulty Level: {difficultyLevel or "unspecified"}, [Beginner / Intermediate / Advanced]
+- Musical Style: {musicalStyle or "unspecified"}, [Choose one between: INSERT LIST]
+- Mood: {mood or "unspecified"}, [Choose one between: INSERT LIST]
+- Time Signature: {timeSignature or "unspecified"}, [Choose one between: INSERT LIST]
+- Key Signature: {keySignature or "unspecified"}, [Choose one between: INSERT LIST]
+- Tempo: {Tempo or "unspecified"}, [Choose one between: INSERT LIST]
+- Scale Type: {scaleType or "unspecified"}, [Choose one between: INSERT LIST]
+- Chord Type: {chordType or "unspecified"}, [Only relevant if Card Type is Chords if a chord choose between: INSERT LIST]
+- Chord Progression: {chordProgression or "unspecified"}, [Only relevant if Card Type is Chords if a chord choose between: INSERT LIST]
+
+Step 1: Parameter Completion
+For any unspecified parameters, provide appropriate values that create a cohesive and musically sensible combination. Consider the user-specified parameters when generating the missing ones. Ensure that the complete set of parameters is appropriate for piano learning and/or musicians looking for creative inspiration.
+
+Step 2: Music/Melody and additional metadata/parameter Generation
+Provide the sequence of piano keys to be played or chords, represented in the following structured format:
+
+For Single Key cards:
+Keys: [
+  { "note": "[NOTE]", "order": [ORDER] },
+  ...
+]
+Ensure the number of keys matches the specified "Number of Keys to Play" parameter.
+
+For Chord-based cards:
+Chords: [
+  {
+    "name": "[CHORD NAME]",
+    "notes": ["[NOTE1]", "[NOTE2]", "[NOTE3]"],
+    "order": [ORDER]
+  },
+  ...
+]
+Ensure the number of chords matches the specified "Number of Keys to Play" parameter, and each chord contains the correct number of notes based on the chord type.
+
+Sound Card Name: [Generate a Creative Name for the title of the Sound Card]
+Description: [Provide a brief explanation of the musical concept]
+Tip: [Provide a sentence or two of playing advice]
+Music Theory: [Provide a one to two sentence explanation of the underlying theory]
+
+Remember, the goal is to create a pattern that is musically interesting, educational, and suitable for the specified difficulty level. The pattern should be playable within the constraints of a standard 88-key piano.
+
+Step 3: Provide Your Response
+Based on the complete set of parameters (user-specified and AI-completed), generate a sound card using the below format.
+No matter what, your response should only be in the format below and nothing else:
+
+Play sequence as json code from above
+Card Type: [Single Keys / Chords]
+Number of Keyboards: [2-4, only if Card Type is Chords]
+Number of Keys to Play: [2-21 for Single Keys, 2-10 for Chords]
+Number of Notes in the Card: [2-12]
+Difficulty Level: [Beginner / Intermediate / Advanced]
+Musical Style: [e.g., Classical, Jazz, Pop, Blues]
+Mood: [e.g., Happy, Sad, Energetic, Calm]
+Time Signature: [e.g., 4/4, 3/4, 6/8]
+Tempo: [e.g. Slow, Fast]
+Key Signature: [e.g., C Major, G Major, A Minor]
+Scale Type: [e.g., Major, Minor, Pentatonic, Blues]
+Chord Type: [e.g., Major, Minor, Dominant 7th] (if applicable)
+Chord Progression: [e.g., I-IV-V, ii-V-I] (if applicable)
+Sound Card Name: [Creative Name]
+Description: [Brief explanation of the musical concept]
+Tip: [Short playing advice]
+Music Theory: [One-sentence explanation of the underlying theory]
+
+### Prompt List Management
+
+Mood: Happy, Sad, Energetic, Calm, Romantic, Melancholic, Angry, Peaceful, Excited, Nostalgic, Triumphant, Mysterious, Anxious, Hopeful, Playful, Intense, Dreamy, Reflective, Confident, Vulnerable]
+
+Musical Style: Classical, Jazz, Blues, Rock, Pop, Hip Hop, R&B, Country, Folk, Electronic, Dance, Reggae, Soul, Funk, Metal, Punk, Indie, Alternative, World Music, Gospel, Latin, Ambient, New Age, Orchestral, Baroque, Romantic Era, Contemporary Classical, Minimalist, Ragtime, Bebop, Swing, Cool Jazz, Fusion, Bossa Nova, Delta Blues, Chicago Blues, Rock 'n' Roll, Hard Rock, Progressive Rock, Psychedelic Rock, Soft Rock, Grunge, Pop Rock, Synthpop, Disco, House, K-Pop, Dubstep, Techno, Salsa, Bluegrass]
+
+Scale Types: Major, Natural Minor, Harmonic Minor, Melodic Minor, Major Pentatonic, Minor Pentatonic, Blues Scale, Ionian Mode, Dorian Mode, Phrygian Mode, Lydian Mode, Mixolydian Mode, Aeolian Mode, Locrian Mode, Chromatic, Whole Tone, Octatonic (Diminished), Raga (Indian Classical), Maqam (Middle Eastern), Hirajoshi (Japanese), Wu Sheng (Chinese Pentatonic).
+
+Chord Types: Major, Minor, Dominant 7th, Major 7th, Minor 7th, Diminished, Augmented, Suspended 2nd (sus2), Suspended 4th (sus4), Minor 7 flat 5 (Half-Diminished), Diminished 7th, Add9, Major 6th, Minor 6th, 9th, 11th, 13th, Power Chord (5th).
+
+Chord Progression: I-IV-V, ii-V-I, I-V-vi-IV, I-vi-IV-V, I-V-IV, vi-IV-I-V, I-IV-vii°-iii-vi-ii-V-I, I-vi-ii-V, I-vi-iii-IV, I-V-vi-iii-IV-I-IV-V.
+
+Time Signature: 4/4, 3/4, 2/4, 6/8, 12/8, 2/2 (Cut time), 9/8, 5/4, 7/8.
+
+Key Signatures: C Major, G Major, D Major, A Major, E Major, F Major, Bb Major, Eb Major, Ab Major, A Minor, E Minor, D Minor, G Minor, C Minor, B Minor, F# Minor, Bb Minor.
+
+Tempo: Very Slow: Relaxed pace. 60–70 BPM, Slow: Steady and comfortable pace. 70–80 BPM, Medium: Moderate speed. 80–90 BPM, Fast: A quicker and energetic pace. 90–100 BPM, Very Fast: Go as fast as you'd like. 100–120 BPM
+
+## Additional Considerations
+
+### Prompt Management
+- Implement an admin interface for updating the core AI prompt
+- Store version history of core prompts for potential rollback
+- Implement A/B testing capabilities for different core prompts
+
+### API Key Management
+- Implement secure storage for user-provided API keys
+- Set up monitoring and alerting for API key usage and limits
+- Provide clear user feedback on API key status and usage
+
+### User Custom Prompts
+- Implement input validation and sanitization for user custom prompts
+- Consider storing frequently used custom prompts for quick access
+
+### Limitations and Quotas
+- Implement a quota system for free users using the app's API key
+- Provide clear feedback on remaining quota and upgrade options
+- For users with their own API keys, implement warnings about approaching OpenAI rate limits
+
+## Implementation Flow
+
+1. Set up core components (AIInteraction, SoundCardGenerator, Backend API)
+2. Implement authentication and user profile management
+3. Develop UserPreferencesManager for handling default configurations
+4. Modify SoundCardGenerator to use DefaultConfigLoader
+5. Develop `PromptManager` for handling core and custom prompts
+6. Implement `APIKeyManager` for managing API keys and usage
+7. Create admin interface for core prompt management
+8. Develop user interface for custom prompt input and API key management
+9. Implement quota and limitation system
+10. Develop card generation and display functionality
+11. Create explore feed and favorites system
+12. Implement learn section and sharing capabilities
+13. Set up pro vs free user feature management
+14. Develop error logging and analytics systems
+15. Integrate payment processing and Firebase services
+16. Implement remaining UI/UX features (dark mode, responsiveness)
+17. Set up CI/CD pipeline and deploy
+
+This comprehensive plan outlines the full scope of your AI Piano App, incorporating all discussed features, components, and considerations. It provides a roadmap for development, ensuring all aspects of the app are addressed in a structured manner. Below I will add more details and context, however, nothing below, should override above. 
+
+Anything mentioned below is to serve as a guiding principle and to add more context, but should not override the details above if there are any conflicts. The details above are the hard rules for architecture. 
+
+App Requirments
+
+I want to create an app that allows users to get inspiration to start making music on the piano. I want to use ai to generate “sound cards”. When a user hits “generate” they would be presented with a card that visually shows keys from a piano and the keys would be highlighted of what to play. This will be done with Ai, I will use my chatgpt openai key to start. However, even though they are called sound cards,  the app won't make any sounds for the user, except show them what to play. There will be an explore page for popular sound cards. People will be able to favorite sound cards.
+
+I will have a standard prompt. ''You are an expert at music theory, Generate a great-sounding melody with the given rules: [insert all parameters of input]  There will be an option for a user to type in a custom prompt.
+
+What gets displayed will be keys that were made with HTML. I put that code in... 
+
+User will have the option to either generate single key sounds or full chords (between 2 and 10 max keys).   Then there will be the concept of an explore feed. The explore feed is where users will see popular cards (defined by most liked), recently created, and featured sound cards. Featured sound cards will be a unique type of chard that the team will curate, these won't be generated at random. In the feed, users will be able to favorite other creations. There will be a section where users can see all of the sound cards they created.
+
+Users will be able to see a history of the cards they generated in the form of a list. 
+
+There will be a paid version and a free version, and this is why it is important all pieces of functionality are flexible and modular to have flags for free vs pro users. 
+
+Users will have a login and be able to favorite (will save it for them) their favorite sound cards. 
+
+There will be 6 key components of the app. 
+Generating new Sound cards - this should be the main focus of the app
+Storing the history of what you generated for yourself. 
+Exploring a feed of generated sound cards by other users
+Favorites - A place for them to see a library of the cards they favorited. Favorited cards could be made by them. or ones found in the explore section.
+Learn - a place for them to learn Piano basics and music theory, like a resources section 
+Settings/profile - where people can put their own API keys, update their profile, billing, and set defaults for card generation. 
+
+For now, the home page layout will mostly focus on component 1 above, and 2-5 will be in other parts as a highlight on the page, but 2-5 will also have its own pages for full functionality, why it is important everything is build modularly. Section 6 settings will be able to be accessed from any page as it would like be in the header
+
+Parameters - When generating a sound card, there will be parameters that allow users to configure the specific chord attributes. When generating a sound card, here are the different ways a user can set their parameters:
+ lock in their parameters - here no parameter will change when the user hits the generate button
+Lock only specific parameters - when a user chooses this, each parameter that remains locked, must not change upon generation. For all unlocked parameters, the Ai will be free to come up with its own to make it sound how it wants
+Unlock all parameters - when all parameters are unlocked, the ai is free to generate its own parameters for the sound card at the time of generation.
+
+Changing parameters will definitely be something only pro users can do when we implement payments. But in any case, altering parameters for generation, and viewing the specifics on parameters in a sounds card should be listed as "Advanced" or "For Pros" as this is really deep into music theory. 
+
+The music cards
+There will be two card structures
+Featured - I as an admin would have control of adding these to the explore page.
+User-generated - these would be generated by users with ai and stored once saved by the user. 
+Saved cards
+There will need to be a save button. 
+Cards will have a unique identifier
+There will be a list of saved cards
+
+Card Metadata: Save metadata like timestamps, card configurations
+
+Each card will have a unique url
+
+A saved generated card should be created when a user for the first time hits save or signs out. 
+
+The only time a generated card would be updated/saved is when a user either hits, "save", refreshes the page, if the window closes, or the user signs out. There should be a tool tip next to generate about losing sound cards if they do not hit save. 
+
+Users will be able to click on any saved card to view more info about it.
+
+Topics for learning on the card
+Music theory in one sentence - maybe have this prefilled to prevent hallucinations? 
+Chord type
+scale type
+Chord progression (how to play) iv, vi etc
+what key is it in
+
+The user should also be able to delete saved sound cards. This should trigger a pop-up to verify if they want to delete that Card. Saving may eventually be a paid feature, so let's make sure it is set up that way where the feature can be enabled or disabled at the account level. But to start, everyone who has an account will be able to save a Sound card. But I need to be ready to make this an upgradeable feature when I start to charge a subscription for a pro Plan.
+
+Card Features
+When a User is going to generate a card there will be two key configs that determine how the card would be presented.
+Single keys - present one keyboard of 21 - These will have numbers for each key direction the user in what order to play them/ The keys will also have the notes listed on them.
+default - 5
+min - 2
+max - 21
+Max notes in the card
+default - 5
+min - 2
+max - 12
+Max keys to play in the card (for single key card)
+default - 5
+min - 2
+max - 10
+Chords - present 2-4 keyboards depending on user preference. each keyboard would have 21 keys. The keys will also have the notes listed on them.
+default - 4
+min - 2
+max - 4 (for now, this may be increased later)
+Notes in the card
+default - 3
+min - 2
+max. 12
+ Keys to play in the card (for single key card)
+default - 3
+min - 2
+max - 10
+
+Within each of these, there are additional configs that are editable including:
+
+These rules combine to create a beginner-friendly introduction to melody and harmony, providing a structured yet flexible framework for early music creation. The design allows for easy visualization of musical concepts while limiting complexity, making it approachable for those new to music theory and piano playing.
+
+The Prompt
+Our prompt will provide some instruction, be able to account for the different fields and use music theory to spit them out. It will be limited to the configurations. 
+
+Maybe have a recommended category (but include tooltip that music is not limited and can be in any style. )
+The Feed
+Overview:
+The Card Feed feature allows users to explore a dynamic stream of creative Sound Cards created (created means generated by AI with their configurations). 
+
+Key Components:
+
+Feed Interface:	
+In feeds, users can see categories defined as
+Featured - these cards are created by the team, or created by a user and boosted by the team
+Most Favorited
+Recently Created
+Display: A feed displaying prompt templates shared by the community. Each entry in the feed includes the prompt template, a preview (if applicable), and details such as the title, description, options chosen, and tags.
+Feed should be paginated and optimized for SEO and speed.
+
+Users should be able to share templates really easily on social media. This means that every card needs its own URL associated with its unique identifier.
+
+Interaction Features:
+	•	Favorite: Users can favorite a Card by clicking a heart icon. Favorited templates are saved to the user’s “Favorites” section for easy access later.
+	3.	Template Management:
+	•	Personal Library: Users have a dedicated space in their profile where all their history of saved templates is stored.
+	•	Favorites: A separate section where all favorited templates from the feed are stored - this should be prominently displayed to the user. 
+	•	The explore feed, favorites section, and saved sound cards list should have Filters: Users can filter cards by any available category/attribute
+	5.	Social Integration:
+
+
+Create New Chord Sections
+Users will be presented with a single card. The default will be a single key card with the defaults mentioned above. 
+
+Pro users will be able to have a custom prompt. But for now this would be visible but greyed out. Once parameters are set, they can then generate a card using AI. From there they can either hit generate again, in which that card will not be saved, or they can save it. After saving it, it generates the unique ID which would then allow them to favorite it. The favorites section will be different from the saved generation history list.
+
+Sharing Outside the App: Users should be able to share their generated melody cards easily via social media, or save them as images or PDFs. This helps the app gain more visibility.
+
+Eventually, users will be able to enter in their own key from chat gpt. They will be able to do this from their settings. 
