@@ -56,6 +56,11 @@ export function SoundCardGenerator() {
 
   return (
     <div className="max-w-md mx-auto mt-8">
+      {user && (
+        <p className="text-lg mb-4">
+          Welcome back, {user.email}! Ready to create some music?
+        </p>
+      )}
       <h2 className="text-2xl font-bold mb-4">Generate Sound Card</h2>
       <form onSubmit={(e) => { e.preventDefault(); generateCard(); }} className="space-y-4">
         <div>
