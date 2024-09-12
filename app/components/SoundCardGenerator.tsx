@@ -126,3 +126,5 @@ export function SoundCardGenerator() {
     </div>
   );
 }
+
+/* eslint-disable @typescript-eslint/no-unused-vars */
