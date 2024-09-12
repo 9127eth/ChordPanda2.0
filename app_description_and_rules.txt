@@ -369,7 +369,7 @@ This app allows users to get inspiration for piano music creation through AI-gen
 
 ### Key Functions
 
-#### `generateCard` in `AIInteraction`
+#### `generate Card` in `AIInteraction`
 
 ```javascript
 const generateCard = async (config) => {

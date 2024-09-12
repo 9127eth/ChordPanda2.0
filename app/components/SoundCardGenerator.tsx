@@ -16,7 +16,8 @@ export interface SoundCardConfig {
   scaleType?: string;
   chordType?: string;
   chordProgression?: string;
-  chords: Chord[];
+  keys?: { note: string; order: number }[];
+  chords?: Chord[];
 }
 
 export interface Chord {
@@ -71,10 +72,28 @@ export function SoundCardGenerator() {
       if (!response.ok) {
         throw new Error(data.details || 'Failed to generate card');
       }
-      setGeneratedCard(data);
+      
+      // Handle both Keys and Chords cases
+      const processedData: SoundCardConfig = {
+        ...data,
+        cardType: data['Card Type'],
+        keysToPlay: data['Number of Keys to Play'],
+        notesInCard: data['Number of Notes in the Card'],
+        difficultyLevel: data['Difficulty Level'],
+        musicalStyle: data['Musical Style'],
+        keySignature: data['Key Signature'],
+        timeSignature: data['Time Signature'],
+        tempo: data.Tempo,
+        scaleType: data['Scale Type'],
+        chordType: data['Chord Type'],
+        chordProgression: data['Chord Progression'],
+        keys: data.Keys || [],
+        chords: data.Chords || [],
+      };
+      
+      setGeneratedCard(processedData);
     } catch (error) {
       console.error('Error generating card:', error);
-      // Display error message to the user
       if (error instanceof Error) {
         alert(`Error generating card: ${error.message}`);
       } else {

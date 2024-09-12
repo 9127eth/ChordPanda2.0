@@ -5,9 +5,15 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
-    const config = await request.json();
+    const config = await req.json();
+    
+    console.log('Received request:', config);
+
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error('OPENAI_API_KEY is not set');
+    }
 
     const prompt = `You are an expert music theorist, music producer for all genres, and a piano instructor. Your task is to generate a "sound card" for a music app, primarily focusing on the piano. This sound card should provide a musical pattern that is both educational and inspirational for piano learners and musicians looking for creative inspiration.
 
@@ -48,32 +54,44 @@ Music Theory: [Provide a one to two sentence explanation of the underlying theor
 Remember, the goal is to create a pattern that is musically interesting, educational, and suitable for the specified difficulty level. The pattern should be playable within the constraints of a standard 88-key piano.
 
 Step 3: Provide Your Response
-Based on the complete set of parameters (user-specified and AI-completed), generate a sound card using the below format.
-No matter what, your response should only be in the format below and nothing else:
+Based on the complete set of parameters (user-specified and AI-completed), generate a sound card using the format below. Your response must be a valid JSON object with the following structure:
 
-${config.cardType === 'Single Keys' ? 'Keys:' : 'Chords:'} [JSON array as specified above]
-Card Type: [Single Keys / Chords]
-Number of Keyboards: [2-4, only if Card Type is Chords]
-Number of Keys to Play: [2-21 for Single Keys, 2-10 for Chords]
-Number of Notes in the Card: [2-12]
-Difficulty Level: [Beginner / Intermediate / Advanced]
-Musical Style: [e.g., Classical, Jazz, Pop, Blues]
-Mood: [e.g., Happy, Sad, Energetic, Calm]
-Time Signature: [e.g., 4/4, 3/4, 6/8]
-Tempo: [e.g. Slow, Fast]
-Key Signature: [e.g., C Major, G Major, A Minor]
-Scale Type: [e.g., Major, Minor, Pentatonic, Blues]
-Chord Type: [e.g., Major, Minor, Dominant 7th] (if applicable)
-Chord Progression: [e.g., I-IV-V, ii-V-I] (if applicable)
-Sound Card Name: [Creative Name]
-Description: [Brief explanation of the musical concept]
-Tip: [Short playing advice]
-Music Theory: [One-sentence explanation of the underlying theory]`;
+{
+  "${config.cardType === 'Single Keys' ? 'Keys' : 'Chords'}": [
+    ${config.cardType === 'Single Keys' 
+      ? '{ "note": "C4", "order": 1 }, { "note": "E4", "order": 2 }, ...'
+      : '{ "name": "C Major", "notes": ["C4", "E4", "G4"], "order": 1 }, ...'
+    }
+  ],
+  "Card Type": "${config.cardType}",
+  "Number of Keyboards": ${config.cardType === 'Chords' ? '2' : 'null'},
+  "Number of Keys to Play": 5,
+  "Number of Notes in the Card": 5,
+  "Difficulty Level": "Beginner",
+  "Musical Style": "Classical",
+  "Mood": "Calm",
+  "Time Signature": "4/4",
+  "Tempo": "Slow",
+  "Key Signature": "C Major",
+  "Scale Type": "Major",
+  "Chord Type": ${config.cardType === 'Chords' ? '"Major"' : 'null'},
+  "Chord Progression": ${config.cardType === 'Chords' ? '"I-IV-V"' : 'null'},
+  "Sound Card Name": "Gentle Sunrise Melody",
+  "Description": "A simple, calming progression perfect for beginners.",
+  "Tip": "Focus on smooth transitions between notes.",
+  "Music Theory": "This pattern introduces basic chord structure in the key of C major."
+}
+
+Ensure that your response is a valid JSON object and includes all the fields shown above, adjusting the values based on the generated sound card. The 'Keys' or 'Chords' array should contain the correct number of elements as specified in 'Number of Keys to Play'.`;
+
+    console.log('Sending prompt to OpenAI:', prompt);
 
     const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [{ role: "user", content: prompt }],
     });
+
+    console.log('OpenAI response:', completion);
 
     if (!completion.choices[0].message.content) {
       throw new Error('No content in OpenAI response');
@@ -81,40 +99,27 @@ Music Theory: [One-sentence explanation of the underlying theory]`;
 
     const generatedCard = parseAIResponse(completion.choices[0].message.content);
 
+    console.log('Parsed response:', generatedCard);
+
     return NextResponse.json(generatedCard);
   } catch (error) {
-    console.error('Error generating card:', error);
-    if (error instanceof Error) {
-      return NextResponse.json({ error: 'Failed to generate card', details: error.message }, { status: 500 });
-    } else {
-      return NextResponse.json({ error: 'Failed to generate card', details: 'An unknown error occurred' }, { status: 500 });
-    }
+    console.error('Error in API route:', error);
+    return NextResponse.json(
+      { error: 'Internal Server Error', details: error instanceof Error ? error.message : String(error) },
+      { status: 500 }
+    );
   }
 }
 
 function parseAIResponse(response: string): Record<string, unknown> {
   try {
-    const lines = response.split('\n');
-    const result: Record<string, unknown> = {};
-
-    let currentKey = '';
-    for (const line of lines) {
-      if (line.includes(':')) {
-        const [key, value] = line.split(':').map(s => s.trim());
-        if (key === 'Keys' || key === 'Chords') {
-          currentKey = key;
-          result[currentKey] = JSON.parse(value);
-        } else {
-          result[key] = value;
-        }
-      } else if (currentKey && line.trim()) {
-        result[currentKey] += '\n' + line.trim();
-      }
-    }
-
+    console.log('Raw AI response:', response);
+    const result = JSON.parse(response);
+    console.log('Parsed result:', result);
     return result;
   } catch (error) {
     console.error('Error parsing AI response:', error);
-    throw new Error('Failed to parse AI response');
+    console.error('Full response:', response);
+    throw new Error('Failed to parse AI response: ' + (error instanceof Error ? error.message : String(error)));
   }
 }
