@@ -8,7 +8,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#FFF5E1",
+        background: "#fdfaeb",
         text: "#1B1B1B",
         action: "#FFB300",
         card: "#F5F5F5",

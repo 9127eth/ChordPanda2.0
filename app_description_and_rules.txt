@@ -63,7 +63,7 @@ Must have a dark mode option.
 Here are how I initially want things to look. 
 Page background color
 Colors:
-Page background: #FFF5E1
+Page background: ##fff8e8
 Text Color - 1b1b1b
 Action Button: FFB300
 Card background: F5F5F5

@@ -7,7 +7,7 @@ interface LayoutProps {
   title?: string;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, title = 'AI Piano App' }) => {
+const Layout: React.FC<LayoutProps> = ({ children, title = 'Chord Panda' }) => {
   const { user, signOut } = useAuth();
 
   return (
@@ -16,7 +16,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title = 'AI Piano App' }) => 
         <title>{title}</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <header className="bg-websiteSection p-4">
+      <header className="bg-background p-4">
         <div className="container mx-auto flex justify-between items-center">
           <h1 className="text-2xl font-bold">Chord Panda</h1>
           {user && (
