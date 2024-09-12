@@ -95,7 +95,7 @@ Music Theory: [One-sentence explanation of the underlying theory]`;
 function parseAIResponse(response: string): Record<string, unknown> {
   try {
     const lines = response.split('\n');
-    const result: any = {};
+    const result: Record<string, unknown> = {};
 
     let currentKey = '';
     for (const line of lines) {
