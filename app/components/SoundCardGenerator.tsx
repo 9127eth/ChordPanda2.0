@@ -42,6 +42,7 @@ const defaultConfig: SoundCardConfig = {
 };
 
 export function SoundCardGenerator() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { user } = useAuth();
   const [config, setConfig] = useState<SoundCardConfig>(defaultConfig);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -67,9 +68,18 @@ export function SoundCardGenerator() {
         body: JSON.stringify(config),
       });
       const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.details || 'Failed to generate card');
+      }
       setGeneratedCard(data);
     } catch (error) {
       console.error('Error generating card:', error);
+      // Display error message to the user
+      if (error instanceof Error) {
+        alert(`Error generating card: ${error.message}`);
+      } else {
+        alert('An unknown error occurred while generating the card');
+      }
     } finally {
       setIsGenerating(false);
     }
