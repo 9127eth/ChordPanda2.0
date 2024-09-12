@@ -28,7 +28,7 @@ export function SoundCardGenerator() {
   const { user } = useAuth();
   const [config, setConfig] = useState<SoundCardConfig>(defaultConfig);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedCard, setGeneratedCard] = useState<any>(null);
+  const [generatedCard, setGeneratedCard] = useState<SoundCardConfig | null>(null);
 
   const handleConfigChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
