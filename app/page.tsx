@@ -4,6 +4,7 @@ import React from 'react';
 import { useAuth } from './contexts/AuthContext';
 import AuthForm from './components/AuthForm';
 import Layout from './components/Layout';
+import { SoundCardGenerator } from './components/SoundCardGenerator';
 
 export default function Home() {
   const { user, loading } = useAuth();
@@ -20,9 +21,7 @@ export default function Home() {
           <div>
             <p className="mb-4">Hello, {user.email}!</p>
             <p className="mb-4">Get inspired and create beautiful piano melodies!</p>
-            <button className="bg-action text-white font-bold py-2 px-4 rounded">
-              Generate a Sound Card
-            </button>
+            <SoundCardGenerator />
           </div>
         ) : (
           <AuthForm />
