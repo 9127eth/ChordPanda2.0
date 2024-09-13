@@ -15,17 +15,17 @@ export default function Home() {
 
   return (
     <Layout>
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Chord Panda</h1>
-        {user ? (
-          <div>
-            <p className="mb-4">Hello, {user.email}!</p>
-            <p className="mb-4">Get inspired and create beautiful piano melodies!</p>
-            <SoundCardGenerator />
-          </div>
-        ) : (
-          <AuthForm />
-        )}
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold mb-4">Let's create some music!</h1>
+          {user ? (
+            <div>
+              <SoundCardGenerator />
+            </div>
+          ) : (
+            <AuthForm />
+          )}
+        </div>
       </div>
     </Layout>
   );

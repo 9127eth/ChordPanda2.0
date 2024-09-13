@@ -455,7 +455,7 @@ Here are the User-specified parameters. After the parameters, I have added the r
 
 - Card Type: {cardType or "unspecified"}, Options: [Single Keys / Chords]
 - Number of Keyboards: {numberOfKeyboards or "unspecified"}, [If Card type is Single Keys, this must only be "1", If Chords, value can be between "2", "3", or "4"]
-- Number of Keys to Play: {keysToPlay or "unspecified"}, [If Card type is Single Keys, value must be between 2 and 21. If the card type is Chords, the value must be between 2 and 10]
+- Number of Keys to Play: {keysToPlay or "unspecified"}, [If Card type is Single Keys, value must be between 2 and 24. If the card type is Chords, the value must be between 2 and 10]
 - Number of Notes in the Card: {notesInCard or "unspecified"}, [min=2, max=12]
 - Difficulty Level: {difficultyLevel or "unspecified"}, [Beginner / Intermediate / Advanced]
 - Musical Style: {musicalStyle or "unspecified"}, [Choose one between: INSERT LIST]
@@ -505,7 +505,7 @@ No matter what, your response should only be in the format below and nothing els
 Play sequence as json code from above
 Card Type: [Single Keys / Chords]
 Number of Keyboards: [2-4, only if Card Type is Chords]
-Number of Keys to Play: [2-21 for Single Keys, 2-10 for Chords]
+Number of Keys to Play: [2-24 for Single Keys, 2-10 for Chords]
 Number of Notes in the Card: [2-12]
 Difficulty Level: [Beginner / Intermediate / Advanced]
 Musical Style: [e.g., Classical, Jazz, Pop, Blues]
@@ -647,10 +647,10 @@ The user should also be able to delete saved sound cards. This should trigger a 
 
 Card Features
 When a User is going to generate a card there will be two key configs that determine how the card would be presented.
-Single keys - present one keyboard of 21 - These will have numbers for each key direction the user in what order to play them/ The keys will also have the notes listed on them.
+Single keys - present one keyboard of 24 - These will have numbers for each key direction the user in what order to play them/ The keys will also have the notes listed on them.
 default - 5
 min - 2
-max - 21
+max - 24
 Max notes in the card
 default - 5
 min - 2
@@ -659,7 +659,7 @@ Max keys to play in the card (for single key card)
 default - 5
 min - 2
 max - 10
-Chords - present 2-4 keyboards depending on user preference. each keyboard would have 21 keys. The keys will also have the notes listed on them.
+Chords - present 2-4 keyboards depending on user preference. each keyboard would have 12 keys. The keys will also have the notes listed on them.
 default - 4
 min - 2
 max - 4 (for now, this may be increased later)

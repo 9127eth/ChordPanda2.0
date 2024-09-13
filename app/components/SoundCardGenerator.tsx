@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { SoundCardDisplay } from './SoundCardDisplay';
+import { useCards } from '../contexts/CardContext';
+import SoundCardDisplay from './SoundCardDisplay';
+import Toast from './Toast';
 
 export interface SoundCardConfig {
-  cardType: 'Single Keys' | 'Chords' | '';
+  cardType: 'Single Keys' | 'Chords';
   numberOfKeyboards?: number;
-  keysToPlay: number | '';
-  notesInCard: number | '';
-  difficultyLevel: 'Beginner' | 'Intermediate' | 'Advanced' | '';
+  keysToPlay: number;
+  notesInCard: number;
+  difficultyLevel: 'Beginner' | 'Intermediate' | 'Advanced';
   musicalStyle?: string;
   mood?: string;
   keySignature?: string;
@@ -18,6 +19,10 @@ export interface SoundCardConfig {
   chordProgression?: string;
   keys?: { note: string; order: number }[];
   chords?: Chord[];
+  cardName: string;
+  description: string;
+  tip: string;
+  musicTheory: string;
 }
 
 export interface Chord {
@@ -40,25 +45,36 @@ const defaultConfig: SoundCardConfig = {
   chordType: 'Major',
   chordProgression: 'I-IV-V',
   chords: [],
+  cardName: '',
+  description: '',
+  tip: '',
+  musicTheory: '',
 };
 
 export function SoundCardGenerator() {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { user } = useAuth();
+  const { saveCard } = useCards();
   const [config, setConfig] = useState<SoundCardConfig>(defaultConfig);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedCard, setGeneratedCard] = useState<SoundCardConfig | null>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
   const handleConfigChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
+    const numValue = e.target.type === 'number' ? (value === '' ? '' : parseInt(value, 10)) : value;
+
     setConfig(prev => ({
       ...prev,
-      [name]: e.target.type === 'number' ? (value === '' ? '' : parseInt(value, 10)) : value
+      [name]: numValue
     }));
   };
 
   const generateCard = async () => {
+    if (config.keysToPlay < config.notesInCard) {
+      setToast({ message: "Error: The number of keys to play cannot be less than the number of notes. Please adjust your settings.", type: 'error' });
+      return;
+    }
+
     setIsGenerating(true);
     try {
       const response = await fetch('/api/generate-card', {
@@ -73,7 +89,6 @@ export function SoundCardGenerator() {
         throw new Error(data.details || 'Failed to generate card');
       }
       
-      // Handle both Keys and Chords cases
       const processedData: SoundCardConfig = {
         ...data,
         cardType: data['Card Type'],
@@ -87,18 +102,19 @@ export function SoundCardGenerator() {
         scaleType: data['Scale Type'],
         chordType: data['Chord Type'],
         chordProgression: data['Chord Progression'],
-        keys: data.Keys || [],
-        chords: data.Chords || [],
+        keys: data.Keys,
+        chords: data.Chords,
+        cardName: data['Sound Card Name'],
+        description: data.Description,
+        tip: data.Tip,
+        musicTheory: data['Music Theory'],
       };
       
       setGeneratedCard(processedData);
+      setToast({ message: 'Card generated successfully!', type: 'success' });
     } catch (error) {
       console.error('Error generating card:', error);
-      if (error instanceof Error) {
-        alert(`Error generating card: ${error.message}`);
-      } else {
-        alert('An unknown error occurred while generating the card');
-      }
+      setToast({ message: error instanceof Error ? error.message : 'An unknown error occurred while generating the card', type: 'error' });
     } finally {
       setIsGenerating(false);
     }
@@ -124,17 +140,21 @@ export function SoundCardGenerator() {
       scaleType: ['Major', 'Minor', 'Pentatonic'][Math.floor(Math.random() * 3)],
       chordType: ['Major', 'Minor', 'Dominant 7th'][Math.floor(Math.random() * 3)],
       chordProgression: ['I-IV-V', 'ii-V-I', 'I-V-vi-IV'][Math.floor(Math.random() * 3)],
+      cardName: '',
+      description: '',
+      tip: '',
+      musicTheory: '',
     };
     setConfig(randomConfig);
   };
 
   const clearConfig = () => {
     setConfig({
-      cardType: '',
+      cardType: 'Single Keys' as 'Single Keys' | 'Chords',
       numberOfKeyboards: undefined,
-      keysToPlay: '',
-      notesInCard: '',
-      difficultyLevel: '',
+      keysToPlay: 0,
+      notesInCard: 0,
+      difficultyLevel: 'Beginner' as 'Beginner' | 'Intermediate' | 'Advanced',
       musicalStyle: '',
       mood: '',
       // Clear advanced options as well
@@ -145,16 +165,27 @@ export function SoundCardGenerator() {
       chordType: '',
       chordProgression: '',
       chords: [],
+      cardName: '',
+      description: '',
+      tip: '',
+      musicTheory: '',
     });
+  };
+
+  const handleSaveCard = () => {
+    if (generatedCard) {
+      saveCard(generatedCard);
+      setToast({ message: 'Card saved successfully!', type: 'success' });
+    }
   };
 
   return (
     <div className="max-w-4xl mx-auto mt-8 px-4">
       <h1 className="text-4xl font-bold mb-4">Chord Panda</h1>
       <p className="mb-8">Unlock the secrets of music theory with our captivating chord generator.</p>
-      <div className="bg-[#F5F5F5] p-6 rounded-2xl shadow-md">
+      <div className="bg-card p-6 rounded-lg shadow-lg">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold text-left">Sound Card Generator</h2>
+          <h2 className="text-2xl font-bold text-left text-mainCardText">Sound Card Generator</h2>
           <div className="space-x-4 text-sm">
             <button onClick={setDefaultConfig} className="text-mainCardText hover:text-blue-800 transition-colors duration-200">
               Default
@@ -198,7 +229,7 @@ export function SoundCardGenerator() {
             className="bg-[#E0E0E0] text-mainCardText py-2 px-3 rounded-2xl appearance-none select-arrow text-sm w-full"
           >
             <option value="">Number of keys to play</option>
-            {Array.from({ length: config.cardType === 'Single Keys' ? 19 : 9 }, (_, i) => i + 2).map(num => (
+            {Array.from({ length: config.cardType === 'Single Keys' ? 23 : 9 }, (_, i) => i + 2).map(num => (
               <option key={num} value={num}>{num}</option>
             ))}
           </select>
@@ -231,11 +262,17 @@ export function SoundCardGenerator() {
             className="bg-[#E0E0E0] text-mainCardText py-2 px-3 rounded-2xl appearance-none select-arrow text-sm w-full"
           >
             <option value="">Musical style</option>
-            <option value="Classical">Classical</option>
-            <option value="Jazz">Jazz</option>
-            <option value="Rock">Rock</option>
-            <option value="Pop">Pop</option>
-            {/* Add more musical style options here */}
+            {[
+              'Classical', 'Jazz', 'Blues', 'Rock', 'Pop', 'Hip Hop', 'R&B', 'Country', 'Folk', 'Electronic',
+              'Dance', 'Reggae', 'Soul', 'Funk', 'Metal', 'Punk', 'Indie', 'Alternative', 'World Music',
+              'Gospel', 'Latin', 'Ambient', 'New Age', 'Orchestral', 'Baroque', 'Romantic Era',
+              'Contemporary Classical', 'Minimalist', 'Ragtime', 'Bebop', 'Swing', 'Cool Jazz', 'Fusion',
+              'Bossa Nova', 'Delta Blues', 'Chicago Blues', 'Rock \'n\' Roll', 'Hard Rock', 'Progressive Rock',
+              'Psychedelic Rock', 'Soft Rock', 'Grunge', 'Pop Rock', 'Synthpop', 'Disco', 'House', 'K-Pop',
+              'Dubstep', 'Techno', 'Salsa', 'Bluegrass'
+            ].map(style => (
+              <option key={style} value={style}>{style}</option>
+            ))}
           </select>
           <select
             name="mood"
@@ -244,11 +281,13 @@ export function SoundCardGenerator() {
             className="bg-[#E0E0E0] text-mainCardText py-2 px-3 rounded-2xl appearance-none select-arrow text-sm w-full"
           >
             <option value="">Mood</option>
-            <option value="Happy">Happy</option>
-            <option value="Sad">Sad</option>
-            <option value="Energetic">Energetic</option>
-            <option value="Calm">Calm</option>
-            {/* Add more mood options here */}
+            {[
+              'Happy', 'Sad', 'Energetic', 'Calm', 'Romantic', 'Melancholic', 'Angry', 'Peaceful',
+              'Excited', 'Nostalgic', 'Triumphant', 'Mysterious', 'Anxious', 'Hopeful', 'Playful',
+              'Intense', 'Dreamy', 'Reflective', 'Confident', 'Vulnerable'
+            ].map(mood => (
+              <option key={mood} value={mood}>{mood}</option>
+            ))}
           </select>
         </div>
         
@@ -341,13 +380,33 @@ export function SoundCardGenerator() {
         <button
           onClick={generateCard}
           disabled={isGenerating}
-          className="bg-[#FFB300] text-white py-2 px-6 rounded-2xl hover:bg-[#FFA000] transition-colors duration-200"
+          className="bg-action text-white py-2 px-6 rounded-2xl hover:bg-[#FFA000] transition-colors duration-200"
         >
           {isGenerating ? 'Generating...' : 'Generate Sound Card'}
         </button>
       </div>
 
-      {generatedCard && <SoundCardDisplay card={generatedCard} />}
+      {generatedCard && (
+        <>
+          <div className="mt-8">
+            <SoundCardDisplay card={generatedCard} />
+          </div>
+          <button
+            onClick={handleSaveCard}
+            className="mt-4 px-4 py-2 bg-action text-white rounded"
+          >
+            Save Card
+          </button>
+        </>
+      )}
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }

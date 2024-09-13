@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piano Interface</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #ece9e6, #ffffff);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .section-container {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+            width: 100%;
+            max-width: 840px;
+        }
+        .piano {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px 0;
+        }
+        .keys {
+            display: flex;
+            position: relative;
+        }
+        .key {
+            width: 40px;
+            height: 160px;
+            background-color: #fdfdfd;
+            border: 1px solid #ccc;
+            border-radius: 0 0 6px 6px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1;
+        }
+        .black-key {
+            width: 24px;
+            height: 100px;
+            background-color: #1d1d1f;
+            margin-left: -12px;
+            margin-right: -12px;
+            z-index: 2;
+            border-radius: 0 0 4px 4px;
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.4);
+        }
+        .highlighted {
+            background-color: #FFD700;
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.8);
+        }
+        .black-key.highlighted {
+            background: linear-gradient(145deg, #e6c200, #ffd700);
+            box-shadow: 
+                inset 2px 2px 3px rgba(255, 255, 255, 0.3),
+                inset -2px -2px 3px rgba(0, 0, 0, 0.2),
+                0 2px 4px rgba(0, 0, 0, 0.3);
+            border: 1px solid #e6c200;
+            transform: translateY(2px);
+            height: 98px;
+        }
+        .chord-pianos {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="section-container">
+        <div class="piano" id="melodyPiano">
+            <div class="keys">
+                <div class="key" data-note="C"></div>
+                <div class="black-key" data-note="C#"></div>
+                <div class="key" data-note="D"></div>
+                <div class="black-key" data-note="D#"></div>
+                <div class="key" data-note="E"></div>
+                <div class="key" data-note="F"></div>
+                <div class="black-key" data-note="F#"></div>
+                <div class="key" data-note="G"></div>
+                <div class="black-key" data-note="G#"></div>
+                <div class="key" data-note="A"></div>
+                <div class="black-key" data-note="A#"></div>
+                <div class="key" data-note="B"></div>
+            </div>
+        </div>
+    </div>
+    <div class="section-container">
+        <div class="chord-pianos">
+            <div class="piano" id="chordPiano1">
+                <div class="keys">
+                    <div class="key" data-note="C"></div>
+                    <div class="black-key" data-note="C#"></div>
+                    <div class="key" data-note="D"></div>
+                    <div class="black-key" data-note="D#"></div>
+                    <div class="key" data-note="E"></div>
+                    <div class="key" data-note="F"></div>
+                    <div class="black-key" data-note="F#"></div>
+                    <div class="key" data-note="G"></div>
+                    <div class="black-key" data-note="G#"></div>
+                    <div class="key" data-note="A"></div>
+                    <div class="black-key" data-note="A#"></div>
+                    <div class="key" data-note="B"></div>
+                </div>
+            </div>
+            <div class="piano" id="chordPiano2">
+                <div class="keys">
+                    <div class="key" data-note="C"></div>
+                    <div class="black-key" data-note="C#"></div>
+                    <div class="key" data-note="D"></div>
+                    <div class="black-key" data-note="D#"></div>
+                    <div class="key" data-note="E"></div>
+                    <div class="key" data-note="F"></div>
+                    <div class="black-key" data-note="F#"></div>
+                    <div class="key" data-note="G"></div>
+                    <div class="black-key" data-note="G#"></div>
+                    <div class="key" data-note="A"></div>
+                    <div class="black-key" data-note="A#"></div>
+                    <div class="key" data-note="B"></div>
+                </div>
+            </div>
+            <div class="piano" id="chordPiano3">
+                <div class="keys">
+                    <div class="key" data-note="C"></div>
+                    <div class="black-key" data-note="C#"></div>
+                    <div class="key" data-note="D"></div>
+                    <div class="black-key" data-note="D#"></div>
+                    <div class="key" data-note="E"></div>
+                    <div class="key" data-note="F"></div>
+                    <div class="black-key" data-note="F#"></div>
+                    <div class="key" data-note="G"></div>
+                    <div class="black-key" data-note="G#"></div>
+                    <div class="key" data-note="A"></div>
+                    <div class="black-key" data-note="A#"></div>
+                    <div class="key" data-note="B"></div>
+                </div>
+            </div>
+            <div class="piano" id="chordPiano4">
+                <div class="keys">
+                    <div class="key" data-note="C"></div>
+                    <div class="black-key" data-note="C#"></div>
+                    <div class="key" data-note="D"></div>
+                    <div class="black-key" data-note="D#"></div>
+                    <div class="key" data-note="E"></div>
+                    <div class="key" data-note="F"></div>
+                    <div class="black-key" data-note="F#"></div>
+                    <div class="key" data-note="G"></div>
+                    <div class="black-key" data-note="G#"></div>
+                    <div class="key" data-note="A"></div>
+                    <div class="black-key" data-note="A#"></div>
+                    <div class="key" data-note="B"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // (JavaScript remains unchanged)
+    </script>
+</body>
+</html>
