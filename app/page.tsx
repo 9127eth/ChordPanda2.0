@@ -17,7 +17,7 @@ export default function Home() {
     <Layout>
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <h1 className="text-4xl font-bold mb-4">Let's create some music!</h1>
+          <h1 className="text-4xl font-bold mb-4">Let&apos;s create some music!</h1>
           {user ? (
             <div>
               <SoundCardGenerator />
