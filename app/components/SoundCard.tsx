@@ -12,13 +12,16 @@ export const SoundCard: React.FC<SoundCardProps> = ({ card }) => {
   const renderPiano = (keys: { note: string; order?: number }[] | undefined, chordName?: string) => (
     <div className="piano mb-4">
       {chordName && <h3 className="text-sm font-bold mb-1">{chordName}</h3>}
-      <div className={`keys flex relative w-[960px]`}>
-        {Array.from({ length: 24 }, (_, i) => {
-          const isBlackKey = [1, 3, 6, 8, 10, 13, 15, 18, 20, 22].includes(i);
+      <div className={`keys flex relative ${card.cardType === 'Chords' ? 'w-[480px]' : 'w-[960px]'}`}>
+        {Array.from({ length: card.cardType === 'Chords' ? 12 : 24 }, (_, i) => {
+          const isBlackKey = [1, 3, 6, 8, 10].includes(i % 12);
           const keyClass = isBlackKey ? 'black-key' : 'key';
-          const note = `${String.fromCharCode(67 + i % 7)}${Math.floor(i / 7) + 4}`;
-          const highlightedKey = keys?.find(k => k.note === note);
-          const isHighlighted = !!highlightedKey;
+          const octave = Math.floor(i / 12) + 4;
+          const noteIndex = i % 12;
+          const noteName = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'][noteIndex];
+          const note = `${noteName}${octave}`;
+          const highlightedKeys = keys?.filter(k => k.note === note) || [];
+          const isHighlighted = highlightedKeys.length > 0;
 
           return (
             <div
@@ -27,10 +30,16 @@ export const SoundCard: React.FC<SoundCardProps> = ({ card }) => {
               data-note={note}
             >
               {isHighlighted && showNotes && (
-                <span className="absolute bottom-1 left-1 text-xs">{note}</span>
+                <span className={`absolute ${isBlackKey ? 'bottom-1' : 'bottom-2'} left-1/2 transform -translate-x-1/2 text-xs ${isBlackKey ? 'text-white' : 'text-black'}`}>
+                  {note}
+                </span>
               )}
               {isHighlighted && showOrder && card.cardType === 'Single Keys' && (
-                <span className="absolute top-1 right-1 text-xs">{highlightedKey.order}</span>
+                <div className="absolute top-1 right-1 text-xs">
+                  {highlightedKeys.map(key => (
+                    <span key={key.order} className="mr-1">{key.order}</span>
+                  ))}
+                </div>
               )}
             </div>
           );

@@ -73,12 +73,18 @@ body {
 
 .highlighted {
   background-color: #FFD700;
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.8);
 }
 
 .black-key.highlighted {
   background: linear-gradient(145deg, #e6c200, #ffd700);
+  box-shadow: 
+    inset 2px 2px 3px rgba(255, 255, 255, 0.3),
+    inset -2px -2px 3px rgba(0, 0, 0, 0.2),
+    0 2px 4px rgba(0, 0, 0, 0.3);
   border: 1px solid #e6c200;
-  height: 100px;
+  transform: translateY(2px);
+  height: 98px;
 }
 
 .chord-pianos {

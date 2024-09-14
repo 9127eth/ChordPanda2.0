@@ -18,7 +18,7 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: "Chord Panda",
-  description: "Unlock the secrets of music theory with our captivating chord generator.",
+  description: "Unlock the secrets of music theory with our captivating melody and chord generator.",
 };
 
 export default function RootLayout({

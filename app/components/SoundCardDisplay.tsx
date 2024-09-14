@@ -13,14 +13,14 @@ const SoundCardDisplay: React.FC<SoundCardDisplayProps> = ({ card }) => {
     <div className="piano mb-4">
       {chordName && <h3 className="text-xl font-bold mb-2">{chordName}</h3>}
       <div className="keys flex relative">
-        {Array.from({ length: card.cardType === 'Single Keys' ? 24 : 12 }, (_, i) => {
-          const isBlackKey = card.cardType === 'Single Keys'
-            ? [1, 3, 6, 8, 10, 13, 15, 18, 20, 22].includes(i)
-            : [1, 3, 6, 8, 10].includes(i);
+        {Array.from({ length: card.cardType === 'Chords' ? 12 : 24 }, (_, i) => {
+          const isBlackKey = [1, 3, 6, 8, 10].includes(i % 12);
           const keyClass = isBlackKey ? 'black-key' : 'key';
-          const note = `${String.fromCharCode(67 + i % 7)}${Math.floor(i / 7) + 4}`;
-          const highlightedKey = keys?.find(k => k.note === note);
-          const isHighlighted = !!highlightedKey;
+          const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+          const octave = 4 + Math.floor(i / 12);
+          const note = `${noteNames[i % 12]}${octave}`;
+          const highlightedKeys = keys?.filter(k => k.note === note) || [];
+          const isHighlighted = highlightedKeys.length > 0;
 
           return (
             <div
@@ -30,13 +30,15 @@ const SoundCardDisplay: React.FC<SoundCardDisplayProps> = ({ card }) => {
             >
               {isHighlighted && (
                 <>
-                  {showOrder && card.cardType === 'Single Keys' && (
-                    <span className={`absolute left-1/2 transform -translate-x-1/2 text-xs ${isBlackKey ? 'top-0.5' : 'top-1'}`}>
-                      {highlightedKey.order}
-                    </span>
+                  {showOrder && (
+                    <div className="absolute top-1 right-1 text-xs">
+                      {highlightedKeys.map(key => (
+                        <span key={key.order} className="mr-1">{key.order}</span>
+                      ))}
+                    </div>
                   )}
                   {showNotes && (
-                    <span className={`absolute left-1/2 transform -translate-x-1/2 text-xs ${isBlackKey ? 'bottom-0.5' : 'bottom-2'}`}>
+                    <span className={`absolute ${isBlackKey ? 'bottom-1' : 'bottom-2'} left-1/2 transform -translate-x-1/2 text-xs ${isBlackKey ? 'text-white' : 'text-black'}`}>
                       {note}
                     </span>
                   )}
@@ -59,14 +61,12 @@ const SoundCardDisplay: React.FC<SoundCardDisplayProps> = ({ card }) => {
         >
           {showNotes ? 'Hide Notes' : 'Show Notes'}
         </button>
-        {card.cardType === 'Single Keys' && (
-          <button
-            onClick={() => setShowOrder(!showOrder)}
-            className="px-2 py-1 bg-[#E0E0E0] rounded"
-          >
-            {showOrder ? 'Hide Order' : 'Show Order'}
-          </button>
-        )}
+        <button
+          onClick={() => setShowOrder(!showOrder)}
+          className="px-2 py-1 bg-[#E0E0E0] rounded"
+        >
+          {showOrder ? 'Hide Order' : 'Show Order'}
+        </button>
       </div>
       {card.cardType === 'Single Keys' ? (
         renderPiano(card.keys)

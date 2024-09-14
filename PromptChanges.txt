@@ -1,0 +1,201 @@
+If we dont have this alredy First, let's create a generatePrompt function that constructs the prompt based on the user's configuration (config). This function will be placed in your AIInteraction module or wherever you handle the AI prompt generation.
+
+// constants/prompt.ts
+export const moodList = [
+  'Happy', 'Sad', 'Energetic', 'Calm', 'Romantic', 'Melancholic', 'Angry',
+  'Peaceful', 'Excited', 'Nostalgic', 'Triumphant', 'Mysterious', 'Anxious',
+  'Hopeful', 'Playful', 'Intense', 'Dreamy', 'Reflective', 'Confident', 'Vulnerable',
+];
+
+export const musicalStyleList = [
+  'Classical', 'Jazz', 'Blues', 'Rock', 'Pop', 'Hip Hop', 'R&B', 'Country', 'Folk',
+  'Electronic', 'Dance', 'Reggae', 'Soul', 'Funk', 'Metal', 'Punk', 'Indie',
+  'Alternative', 'World Music', 'Gospel', 'Latin', 'Ambient', 'New Age', 'Orchestral',
+  'Baroque', 'Romantic Era', 'Contemporary Classical', 'Minimalist', 'Ragtime',
+  'Bebop', 'Swing', 'Cool Jazz', 'Fusion', 'Bossa Nova', 'Delta Blues', 'Chicago Blues',
+  'Rock \'n\' Roll', 'Hard Rock', 'Progressive Rock', 'Psychedelic Rock', 'Soft Rock',
+  'Grunge', 'Pop Rock', 'Synthpop', 'Disco', 'House', 'K-Pop', 'Dubstep', 'Techno',
+  'Salsa', 'Bluegrass',
+];
+
+export const scaleTypeList = [
+  'Major', 'Natural Minor', 'Harmonic Minor', 'Melodic Minor', 'Major Pentatonic',
+  'Minor Pentatonic', 'Blues Scale', 'Ionian Mode', 'Dorian Mode', 'Phrygian Mode',
+  'Lydian Mode', 'Mixolydian Mode', 'Aeolian Mode', 'Locrian Mode', 'Chromatic',
+  'Whole Tone', 'Octatonic (Diminished)', 'Raga (Indian Classical)',
+  'Maqam (Middle Eastern)', 'Hirajoshi (Japanese)', 'Wu Sheng (Chinese Pentatonic)',
+];
+
+export const chordTypeList = [
+  'Major', 'Minor', 'Dominant 7th', 'Major 7th', 'Minor 7th', 'Diminished', 'Augmented',
+  'Suspended 2nd (sus2)', 'Suspended 4th (sus4)', 'Minor 7 flat 5 (Half-Diminished)',
+  'Diminished 7th', 'Add9', 'Major 6th', 'Minor 6th', '9th', '11th', '13th', 'Power Chord (5th)',
+];
+
+export const chordProgressionList = [
+  'I-IV-V', 'ii-V-I', 'I-V-vi-IV', 'I-vi-IV-V', 'I-V-IV', 'vi-IV-I-V', 'I-IV-vii°-iii-vi-ii-V-I',
+  'I-vi-ii-V', 'I-vi-iii-IV', 'I-V-vi-iii-IV-I-IV-V',
+];
+
+export const timeSignatureList = ['4/4', '3/4', '2/4', '6/8', '12/8', '2/2 (Cut time)', '9/8', '5/4', '7/8'];
+
+export const keySignatureList = [
+  'C Major', 'G Major', 'D Major', 'A Major', 'E Major', 'F Major', 'Bb Major',
+  'Eb Major', 'Ab Major', 'A Minor', 'E Minor', 'D Minor', 'G Minor', 'C Minor',
+  'B Minor', 'F# Minor', 'Bb Minor',
+];
+
+export const tempoList = [
+  'Very Slow', 'Slow', 'Medium', 'Fast', 'Very Fast',
+];
+
+Now, here's the generatePrompt function:
+// utils/generatePrompt.ts
+import {
+  moodList,
+  musicalStyleList,
+  scaleTypeList,
+  chordTypeList,
+  chordProgressionList,
+  timeSignatureList,
+  keySignatureList,
+  tempoList,
+} from '../constants/prompt';
+
+interface Config {
+  cardType: 'Single Keys' | 'Chords';
+  numberOfKeyboards?: number;
+  numberOfKeysToPlay?: number;
+  numberOfNotesInCard?: number;
+  difficultyLevel?: string;
+  musicalStyle?: string;
+  mood?: string;
+  timeSignature?: string;
+  tempo?: string;
+  keySignature?: string;
+  scaleType?: string;
+  chordType?: string;
+  chordProgression?: string;
+}
+
+export const generatePrompt = (config: Config): string => {
+  return `
+You are an expert music theorist, music producer for all genres, and a piano instructor.
+
+Your task is to generate a "sound card" for a music app, primarily focusing on the piano. This sound card should provide a musical pattern that is both educational and inspirational for piano learners and musicians looking for creative inspiration.
+
+The user has provided some parameters, but others may be unspecified. Your goals are:
+
+1. **Parameter Completion**: For any unspecified parameters, choose appropriate values that create a cohesive and musically sensible combination. Consider the user-specified parameters when generating the missing ones. Ensure that the complete set of parameters is appropriate for piano learning and/or musicians looking for creative inspiration.
+
+2. **Music/Melody and Metadata Generation**: Based on the complete set of parameters, provide the sequence of piano keys to be played or chords, and generate additional metadata.
+
+3. **Response Formatting**: Provide your response as a **valid JSON object** with the specified structure, and **nothing else**. Do not include any explanations or additional text.
+
+**User-specified parameters:**
+${Object.entries(config)
+  .map(([key, value]) => `- ${key}: ${value || 'unspecified'}`)
+  .join('\n')}
+
+**IMPORTANT**: For Chords, you MUST generate exactly the number of chords specified in the "Number of Keyboards" parameter. This is crucial for the app to function correctly.
+
+**Available Options for Parameters:**
+- **Mood**: ${moodList.map((m) => `"${m}"`).join(', ')}
+- **Musical Style**: ${musicalStyleList.map((s) => `"${s}"`).join(', ')}
+- **Scale Type**: ${scaleTypeList.map((s) => `"${s}"`).join(', ')}
+- **Chord Type**: ${chordTypeList.map((c) => `"${c}"`).join(', ')}
+- **Chord Progression**: ${chordProgressionList.map((c) => `"${c}"`).join(', ')}
+- **Time Signature**: ${timeSignatureList.map((t) => `"${t}"`).join(', ')}
+- **Key Signature**: ${keySignatureList.map((k) => `"${k}"`).join(', ')}
+- **Tempo**: ${tempoList.map((t) => `"${t}"`).join(', ')}
+
+**Constraints:**
+- **For Single Keys: Ensure that the number of keys matches the specified "Number of Keys to Play" parameter.**
+- **For Chords: Ensure that the number of chords matches the specified "Number of Keyboards" parameter.**
+- **Each chord should contain the correct number of notes based on the chord type.**
+- **The pattern should be playable within the constraints of a standard 88-key piano.**
+
+**Response Format:**
+
+\`\`\`json
+{
+  "${config.cardType === 'Single Keys' ? 'Keys' : 'Chords'}": [
+    ${config.cardType === 'Single Keys'
+      ? `{"note": "C4", "order": 1}, {"note": "E4", "order": 2}, ...`
+      : `{"name": "C Major", "notes": ["C4", "E4", "G4"], "order": 1}, ... (exactly ${config.numberOfKeyboards} chords)`}
+  ],
+  "Card Type": "${config.cardType}",
+  "Number of Keyboards": ${config.cardType === 'Chords' ? config.numberOfKeyboards || 'null' : 'null'},
+  "Number of Keys to Play": ${config.numberOfKeysToPlay || 'null'},
+  "Number of Notes in the Card": ${config.numberOfNotesInCard || 'null'},
+  "Number of Chords": ${config.cardType === 'Chords' ? config.numberOfKeyboards : 'null'},
+  "Difficulty Level": "${config.difficultyLevel || 'unspecified'}",
+  "Musical Style": "${config.musicalStyle || 'unspecified'}",
+  "Mood": "${config.mood || 'unspecified'}",
+  "Time Signature": "${config.timeSignature || 'unspecified'}",
+  "Tempo": "${config.tempo || 'unspecified'}",
+  "Key Signature": "${config.keySignature || 'unspecified'}",
+  "Scale Type": "${config.scaleType || 'unspecified'}",
+  "Chord Type": ${config.cardType === 'Chords' ? `"${config.chordType || 'unspecified'}"` : 'null'},
+  "Chord Progression": ${config.cardType === 'Chords' ? `"${config.chordProgression || 'unspecified'}"` : 'null'},
+  "Sound Card Name": "[Generate a Creative Name]",
+  "Description": "[Provide a brief explanation of the musical concept]",
+  "Tip": "[Provide a sentence or two of playing advice]",
+  "Music Theory": "[Provide a one to two sentence explanation of the underlying theory]"
+}
+\`\`\`
+
+**Important Notes:**
+- **Your entire response should be a single valid JSON object matching the format above.**
+- **Do not include any additional text, explanations, or commentary.**
+- **Ensure all strings are properly quoted and the JSON is well-formed.**
+- **Replace placeholders like \`[Generate a Creative Name]\` with actual content.**
+  `;
+};
+
+Where to Place the Code
+Constants and Parameter Lists:
+
+Create a new file constants/prompt.ts to store all the parameter lists (moods, musical styles, etc.).
+This keeps your constants organized and makes them easily maintainable.
+Prompt Generation Function:
+
+Place the generatePrompt function in a utility file, e.g., utils/generatePrompt.ts.
+Ensure you have the appropriate imports for the constants and types.
+Type Definitions:
+
+Define the Config interface in the same file or in a separate types/config.ts file.
+This interface ensures type safety and clarity for the configuration object.
+Using the Prompt in Your Code:
+
+When you need to generate the prompt (e.g., before making the API call to OpenAI), import and use the generatePrompt function.
+
+Example:
+import { generatePrompt } from '../utils/generatePrompt';
+
+// Assuming `config` is your user-specified configuration object
+const prompt = generatePrompt(config);
+
+Explanation of Changes
+Structured Prompt:
+
+The prompt is now more structured and explicit.
+It provides clear instructions to the AI assistant, increasing the likelihood of receiving the desired response.
+Emphasis on Response Format:
+
+We've highlighted that the response must be a valid JSON object and nothing else.
+By specifying \``json` in the prompt, we guide the AI to output code in JSON format.
+Constraints and Available Options:
+
+We've included lists of available options for parameters directly in the prompt.
+This helps the AI assistant select appropriate values when completing unspecified parameters.
+TypeScript and Code Organization:
+
+The code now adheres to your TypeScript and code style guidelines.
+Constants are separated, interfaces are used for types, and functions are properly exported and imported.
+Modularity and Reusability:
+
+The generatePrompt function is modular and can be reused whenever you need to generate a prompt.
+Constants are centralized, making it easy to update options without modifying the prompt generation logic.
+
+Implement error handling for cases where the AI might return invalid JSON.

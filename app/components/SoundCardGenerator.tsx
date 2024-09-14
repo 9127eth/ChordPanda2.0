@@ -6,8 +6,8 @@ import Toast from './Toast';
 export interface SoundCardConfig {
   cardType: 'Single Keys' | 'Chords';
   numberOfKeyboards?: number;
-  keysToPlay: number;
-  notesInCard: number;
+  numberOfKeysToPlay: number;
+  numberOfNotesInCard: number;
   difficultyLevel: 'Beginner' | 'Intermediate' | 'Advanced';
   musicalStyle?: string;
   mood?: string;
@@ -18,23 +18,17 @@ export interface SoundCardConfig {
   chordType?: string;
   chordProgression?: string;
   keys?: { note: string; order: number }[];
-  chords?: Chord[];
+  chords?: { name: string; notes: string[]; order: number }[];
   cardName: string;
   description: string;
   tip: string;
   musicTheory: string;
 }
 
-export interface Chord {
-  name: string;
-  notes: string[];
-  order: number;
-}
-
 const defaultConfig: SoundCardConfig = {
   cardType: 'Single Keys',
-  keysToPlay: 5,
-  notesInCard: 5,
+  numberOfKeysToPlay: 5,
+  numberOfNotesInCard: 5,
   difficultyLevel: 'Beginner',
   musicalStyle: 'Classical',
   mood: 'Happy',
@@ -59,18 +53,18 @@ export function SoundCardGenerator() {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
-  const handleConfigChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+  const handleConfigChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    const numValue = e.target.type === 'number' ? (value === '' ? '' : parseInt(value, 10)) : value;
-
-    setConfig(prev => ({
-      ...prev,
-      [name]: numValue
+    const numericFields = ['numberOfKeysToPlay', 'numberOfNotesInCard', 'numberOfKeyboards'];
+    
+    setConfig(prevConfig => ({
+      ...prevConfig,
+      [name]: numericFields.includes(name) ? parseInt(value, 10) : value
     }));
   };
 
   const generateCard = async () => {
-    if (config.keysToPlay < config.notesInCard) {
+    if (config.numberOfKeysToPlay < config.numberOfNotesInCard) {
       setToast({ message: "Error: The number of keys to play cannot be less than the number of notes. Please adjust your settings.", type: 'error' });
       return;
     }
@@ -89,32 +83,47 @@ export function SoundCardGenerator() {
         throw new Error(data.details || 'Failed to generate card');
       }
       
+      if (!data || typeof data !== 'object') {
+        throw new Error('Invalid response from server');
+      }
+
       const processedData: SoundCardConfig = {
-        ...data,
-        cardType: data['Card Type'],
-        keysToPlay: data['Number of Keys to Play'],
-        notesInCard: data['Number of Notes in the Card'],
-        difficultyLevel: data['Difficulty Level'],
-        musicalStyle: data['Musical Style'],
-        keySignature: data['Key Signature'],
-        timeSignature: data['Time Signature'],
-        tempo: data.Tempo,
-        scaleType: data['Scale Type'],
-        chordType: data['Chord Type'],
-        chordProgression: data['Chord Progression'],
-        keys: data.Keys,
-        chords: data.Chords,
-        cardName: data['Sound Card Name'],
-        description: data.Description,
-        tip: data.Tip,
-        musicTheory: data['Music Theory'],
+        ...config,
+        cardType: data['Card Type'] || config.cardType,
+        numberOfKeysToPlay: data['Number of Keys to Play'] || config.numberOfKeysToPlay,
+        numberOfNotesInCard: data['Number of Notes in the Card'] || config.numberOfNotesInCard,
+        difficultyLevel: data['Difficulty Level'] || config.difficultyLevel,
+        musicalStyle: data['Musical Style'] || config.musicalStyle,
+        keySignature: data['Key Signature'] || config.keySignature,
+        timeSignature: data['Time Signature'] || config.timeSignature,
+        tempo: data.Tempo || config.tempo,
+        scaleType: data['Scale Type'] || config.scaleType,
+        chordType: data['Chord Type'] || config.chordType,
+        chordProgression: data['Chord Progression'] || config.chordProgression,
+        keys: Array.isArray(data.Keys) ? data.Keys : [],
+        chords: Array.isArray(data.Chords) ? data.Chords : [],
+        cardName: data['Sound Card Name'] || '',
+        description: data.Description || '',
+        tip: data.Tip || '',
+        musicTheory: data['Music Theory'] || '',
       };
-      
+
+      // Validate the number of chords
+      if (config.cardType === 'Chords' && config.numberOfKeyboards !== undefined) {
+        if (!processedData.chords || processedData.chords.length !== config.numberOfKeyboards) {
+          throw new Error(`Expected ${config.numberOfKeyboards} chords, but got ${processedData.chords?.length || 0}. Please try generating again.`);
+        }
+      }
+
       setGeneratedCard(processedData);
       setToast({ message: 'Card generated successfully!', type: 'success' });
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error generating card:', error);
-      setToast({ message: error instanceof Error ? error.message : 'An unknown error occurred while generating the card', type: 'error' });
+      let errorMessage = 'Unknown error occurred';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      setToast({ message: `Error generating card: ${errorMessage}`, type: 'error' });
     } finally {
       setIsGenerating(false);
     }
@@ -128,8 +137,8 @@ export function SoundCardGenerator() {
     const randomConfig: SoundCardConfig = {
       ...defaultConfig,
       cardType: Math.random() > 0.5 ? 'Single Keys' : 'Chords',
-      keysToPlay: Math.floor(Math.random() * 19) + 2, // 2 to 20
-      notesInCard: Math.floor(Math.random() * 11) + 2, // 2 to 12
+      numberOfKeysToPlay: Math.floor(Math.random() * 19) + 2, // 2 to 20
+      numberOfNotesInCard: Math.floor(Math.random() * 11) + 2, // 2 to 12
       difficultyLevel: ['Beginner', 'Intermediate', 'Advanced'][Math.floor(Math.random() * 3)] as 'Beginner' | 'Intermediate' | 'Advanced',
       musicalStyle: ['Classical', 'Jazz', 'Rock', 'Pop'][Math.floor(Math.random() * 4)],
       mood: ['Happy', 'Sad', 'Energetic', 'Calm'][Math.floor(Math.random() * 4)],
@@ -152,8 +161,8 @@ export function SoundCardGenerator() {
     setConfig({
       cardType: 'Single Keys' as 'Single Keys' | 'Chords',
       numberOfKeyboards: undefined,
-      keysToPlay: 0,
-      notesInCard: 0,
+      numberOfKeysToPlay: 0,
+      numberOfNotesInCard: 0,
       difficultyLevel: 'Beginner' as 'Beginner' | 'Intermediate' | 'Advanced',
       musicalStyle: '',
       mood: '',
@@ -181,11 +190,10 @@ export function SoundCardGenerator() {
 
   return (
     <div className="max-w-4xl mx-auto mt-8 px-4">
-      <h1 className="text-4xl font-bold mb-4">Chord Panda</h1>
-      <p className="mb-8">Unlock the secrets of music theory with our captivating chord generator.</p>
+      <p className="mb-8">Unlock the secrets of music theory with our captivating melody and chord generator.</p>
       <div className="bg-card p-6 rounded-lg shadow-lg">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold text-left text-mainCardText">Sound Card Generator</h2>
+          <h4 className="text-2xl font-bold text-left text-mainCardText">Customize Your Sound</h4>
           <div className="space-x-4 text-sm">
             <button onClick={setDefaultConfig} className="text-mainCardText hover:text-blue-800 transition-colors duration-200">
               Default
@@ -223,8 +231,8 @@ export function SoundCardGenerator() {
             </select>
           )}
           <select
-            name="keysToPlay"
-            value={config.keysToPlay}
+            name="numberOfKeysToPlay"
+            value={config.numberOfKeysToPlay}
             onChange={handleConfigChange}
             className="bg-[#E0E0E0] text-mainCardText py-2 px-3 rounded-2xl appearance-none select-arrow text-sm w-full"
           >
@@ -234,8 +242,8 @@ export function SoundCardGenerator() {
             ))}
           </select>
           <select
-            name="notesInCard"
-            value={config.notesInCard}
+            name="numberOfNotesInCard"
+            value={config.numberOfNotesInCard}
             onChange={handleConfigChange}
             className="bg-[#E0E0E0] text-mainCardText py-2 px-3 rounded-2xl appearance-none select-arrow text-sm w-full"
           >
